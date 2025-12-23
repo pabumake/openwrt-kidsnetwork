@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kids WiFi Admin</title>
+  <link rel="stylesheet" href="/admin/mocha.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <div class="title">OPENWRT-KIDSNETWORK</div>
+        <div class="badge">Catppuccin Mocha</div>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <div class="kv">
+            <div class="k">SSID</div><div class="v mono" id="ssid">—</div>
+            <div class="k">Last rotated</div><div class="v mono" id="last">—</div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid rgba(127,132,156,.25);margin:14px 0">
+
+          <div class="row">
+            <label for="pin">PIN</label>
+            <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="Enter PIN">
+            <button class="btn btn-primary" id="btnRotate">Rotate now</button>
+            <button class="btn btn-warn" id="btnReveal">Reveal password</button>
+          </div>
+
+          <div class="status" id="status">Ready.</div>
+          <div class="note" style="margin-top:10px">
+            This page is intended for LAN / Fritz LAN only. Keep WAN firewall rules tight.
+          </div>
+        </div>
+
+        <div class="panel qrbox">
+          <div class="note">Scan to join kids Wi‑Fi</div>
+          <div class="qr">
+            <img id="qr" src="/admin/qr.svg" alt="WiFi QR">
+          </div>
+          <div class="note mono" id="pw" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const statusEl = $("status");
+const pwEl = $("pw");
+const qrEl = $("qr");
+
+function setStatus(msg) { statusEl.textContent = msg; }
+
+async function loadStatus() {
+  try {
+    const r = await fetch("/cgi-bin/kidsadmin.sh?action=status", {cache:"no-store"});
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "status_failed");
+    $("ssid").textContent = j.ssid || "—";
+    $("last").textContent = j.last_rotated || "—";
+    qrEl.src = j.qr_url || "/admin/qr.svg";
+  } catch (e) {
+    setStatus("Status error: " + e.message);
+  }
+}
+
+async function postAction(action) {
+  const pin = $("pin").value.trim();
+  if (!pin) { setStatus("Enter PIN first."); return; }
+
+  setStatus("Working…");
+  pwEl.style.display = "none";
+  try {
+    const body = new URLSearchParams({action, pin}).toString();
+    const r = await fetch("/cgi-bin/kidsadmin.sh", {
+      method: "POST",
+      headers: {"Content-Type":"application/x-www-form-urlencoded"},
+      body
+    });
+    const j = await r.json();
+    if (!j.ok) { setStatus("Error: " + (j.error || "failed")); return; }
+
+    if (action === "reveal") {
+      pwEl.textContent = `Password: ${j.password || "—"}`;
+      pwEl.style.display = "block";
+      setStatus("Password revealed.");
+    } else {
+      $("ssid").textContent = j.ssid || "—";
+      $("last").textContent = j.last_rotated || "—";
+      qrEl.src = j.qr_url || ("/admin/qr.svg?v=" + Date.now());
+      setStatus("Rotated.");
+    }
+  } catch (e) {
+    setStatus("Request error: " + e.message);
+  }
+}
+
+$("btnRotate").addEventListener("click", () => postAction("rotate"));
+$("btnReveal").addEventListener("click", () => postAction("reveal"));
+
+loadStatus();
+</script>
+</body>
+</html>
