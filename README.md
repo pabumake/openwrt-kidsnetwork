@@ -10,7 +10,7 @@ A small, practical OpenWrt setup for **kids Wi‑Fi access control**:
 - Kids SSID isolated from your main LAN (and optional client isolation)
 - **On‑demand Wi‑Fi password rotation** with **QR code (SVG)**
 - A minimal **Admin Panel** served by the router (Catppuccin Mocha theme)
-- Safe(ish) remote management from an upstream router network (e.g. Fritz!Box `192.168.178.0/24`) via **tight WAN firewall rules**
+- Safe-ish remote management from an upstream router network (e.g. Fritz!Box `192.168.178.0/24`) via **tight WAN firewall rules**
 
 > This project is designed for home use. Do **not** expose the admin panel to the public internet.
 
@@ -52,6 +52,7 @@ Kids devices:
 - `/www/admin/qr.svg` – generated QR code output (auto-updated)
 - `/www/cgi-bin/kidsadmin.sh` – CGI backend (JSON API for panel)
 - `/root/kidswifi-rotate.sh` – rotates password & writes metadata/QR
+- `/root/kidswifi-current.txt` – current SSID/pass (root-only)
 - `/root/kidswifi-pin` – PIN used by the panel (root-only)
 - `/root/kidswifi-meta` – last SSID/pass/timestamp (root-only)
 
@@ -75,6 +76,30 @@ Cron (for scheduled rotation) is optional:
 ```sh
 opkg install cron 2>/dev/null || opkg install cronie
 ```
+
+---
+
+## Quick install (one-liner)
+
+Run on the OpenWrt router (SSH as root):
+
+```sh
+wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/main/install.sh | sh
+```
+
+The script asks for all variables step by step and sets up:
+- network + DHCP + firewall for the kids network
+- the kids SSID on your chosen radios
+- admin panel + CGI backend
+Requires `wget` or `curl` on the router (OpenWrt ships with `wget` by default).
+
+If you already cloned this repo on the router:
+
+```sh
+sh scripts/openwrt-setup.sh
+```
+
+Prefer a manual setup? Continue with the steps below.
 
 ---
 
@@ -373,7 +398,7 @@ cat > /www/cgi-bin/kidsadmin.sh <<'EOF'
 #!/bin/sh
 set -eu
 
-# Fritz LAN guard (only allow requests from 192.168.178.0/24)
+# Fritz LAN guard (change the prefix to match your upstream LAN)
 REMOTE="${REMOTE_ADDR:-}"
 case "$REMOTE" in
   192.168.178.*) : ;;
@@ -762,4 +787,4 @@ ubus call network.interface.wan status | jsonfilter -e '@["ipv4-address"][0].add
 
 ## License
 
-Use freely at your own risk. Consider adding a proper license file if you publish this repository.
+MIT License. See `LICENSE`.
