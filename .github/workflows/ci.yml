@@ -11,9 +11,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Shellcheck
-        uses: ludeeus/action-shellcheck@v1
-        with:
-          scandir: .
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          shellcheck install.sh scripts/*.sh root/*.sh www/cgi-bin/*.sh
 
       - name: shfmt (optional)
         continue-on-error: true
