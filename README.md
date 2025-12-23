@@ -199,7 +199,7 @@ uci show wireless | grep '=wifi-device'
 
 Most devices use `radio0` (2.4G) and `radio1` (5G).
 
-2. Create the SSID (example SSID: `Area51`):
+1. Create the SSID (example SSID: `Area51`):
 
 ```sh
 # 2.4 GHz
