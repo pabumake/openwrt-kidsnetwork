@@ -1,9 +1,7 @@
-
-
 # OPENWRT-KIDSNETWORK
 
-<img src="img/adminpanel.png">
-<img src="img/adminpanel-mobile.png">
+<img src="img/adminpanel.png" alt="Admin panel desktop">
+<img src="img/adminpanel-mobile.png" alt="Admin panel mobile">
 
 A small, practical OpenWrt setup for **kids Wi‑Fi access control**:
 
@@ -22,6 +20,7 @@ A small, practical OpenWrt setup for **kids Wi‑Fi access control**:
 Tested flow: GL.iNet GL‑MT3000 (Beryl AX) flashed to **vanilla OpenWrt**.
 
 It should work on most OpenWrt devices with:
+
 - LuCI/uhttpd
 - `qrencode`
 - a standard `wan` firewall zone
@@ -33,11 +32,13 @@ It should work on most OpenWrt devices with:
 **Upstream router:** Fritz!Box on default LAN `192.168.178.0/24`
 
 **OpenWrt device:**
+
 - `wan` = DHCP client on Fritz LAN (gets a `192.168.178.x` address)
 - `lan` = your internal network (default OpenWrt LAN is usually `192.168.1.1/24`)
 - `kids` = isolated Wi‑Fi only network (recommended subnet `192.168.23.0/24`)
 
 Kids devices:
+
 - Can reach the internet (NAT out `wan`)
 - Cannot reach the OpenWrt router services (except DHCP/DNS)
 - Cannot reach your main LAN
@@ -89,9 +90,11 @@ wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/main/ins
 ```
 
 The script asks for all variables step by step and sets up:
+
 - network + DHCP + firewall for the kids network
 - the kids SSID on your chosen radios
 - admin panel + CGI backend
+
 Requires `wget` or `curl` on the router (OpenWrt ships with `wget` by default).
 
 Safer install options:
@@ -99,7 +102,7 @@ Safer install options:
 Pinned release (won't change underneath you):
 
 ```sh
-wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.0/install.sh | sh
+wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.1/install.sh | sh
 ```
 
 Download, inspect, then run:
@@ -188,7 +191,7 @@ uci commit firewall
 
 ## Step 2 – Create the Kids Wi‑Fi SSID on 2.4 GHz + 5 GHz
 
-1) Determine radio names:
+1. Determine radio names:
 
 ```sh
 uci show wireless | grep '=wifi-device'
@@ -196,7 +199,7 @@ uci show wireless | grep '=wifi-device'
 
 Most devices use `radio0` (2.4G) and `radio1` (5G).
 
-2) Create the SSID (example SSID: `Area51`):
+2. Create the SSID (example SSID: `Area51`):
 
 ```sh
 # 2.4 GHz
@@ -764,15 +767,17 @@ sh scripts/openwrt-uninstall.sh
 Or one-liner (pinned release):
 
 ```sh
-wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.0/scripts/openwrt-uninstall.sh | sh
+wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.1/scripts/openwrt-uninstall.sh | sh
 ```
 
 Removes:
+
 - `/www/admin/*` and `/www/cgi-bin/kidsadmin.sh`
 - `/root/kidswifi-rotate.sh`, `/root/kidswifi-pin`, `/root/kidswifi-meta`, `/root/kidswifi-current.txt`
 - `network.kids`, `dhcp.kids`, kids firewall rules, and all `wifi-iface` sections attached to network `kids`
 
 Notes:
+
 - The script does **not** revert `uhttpd` listen/CGI settings; review `/etc/config/uhttpd` if you changed them.
 - WAN allow rules not named `Allow-Admin-From-My-PC` or `Allow-SSH-From-My-PC` are left untouched.
 
@@ -809,6 +814,7 @@ wget -qO- "http://127.0.0.1/cgi-bin/kidsadmin.sh?action=status" ; echo
 ```
 
 If it’s not JSON, ensure:
+
 - `/www/cgi-bin/kidsadmin.sh` starts with `#!/bin/sh`
 - file is executable (`chmod 755`)
 - uhttpd CGI enabled (`cgi_prefix='/cgi-bin'` and interpreter `.sh=/bin/sh`)
