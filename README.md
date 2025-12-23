@@ -3,6 +3,7 @@
 # OPENWRT-KIDSNETWORK
 
 <img src="img/adminpanel.png">
+<img src="img/adminpanel-mobile.png">
 
 A small, practical OpenWrt setup for **kids Wi‑Fi access control**:
 
@@ -92,6 +93,22 @@ The script asks for all variables step by step and sets up:
 - the kids SSID on your chosen radios
 - admin panel + CGI backend
 Requires `wget` or `curl` on the router (OpenWrt ships with `wget` by default).
+
+Safer install options:
+
+Pinned release (won't change underneath you):
+
+```sh
+wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.0/install.sh | sh
+```
+
+Download, inspect, then run:
+
+```sh
+wget -O /tmp/openwrt-kidsnetwork-install.sh https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/main/install.sh
+sed -n '1,200p' /tmp/openwrt-kidsnetwork-install.sh
+sh /tmp/openwrt-kidsnetwork-install.sh
+```
 
 If you already cloned this repo on the router:
 
@@ -684,6 +701,14 @@ uci commit firewall
 
 ---
 
+## Fritz!Box / upstream router notes
+
+- Keep the WAN firewall allow rule restricted to a **single source IP** only (your admin PC).
+- Create a DHCP reservation for your **admin PC** so the allow rule stays valid.
+- Consider a DHCP reservation for the **OpenWrt WAN IP** so the admin URL doesn’t change.
+
+---
+
 ## Step 5 – First run
 
 Generate your first QR code + password:
@@ -725,6 +750,31 @@ Ensure time/NTP is correct:
 ```sh
 date
 ```
+
+---
+
+## Uninstall / Rollback
+
+Run on the OpenWrt router (SSH as root):
+
+```sh
+sh scripts/openwrt-uninstall.sh
+```
+
+Or one-liner (pinned release):
+
+```sh
+wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.0/scripts/openwrt-uninstall.sh | sh
+```
+
+Removes:
+- `/www/admin/*` and `/www/cgi-bin/kidsadmin.sh`
+- `/root/kidswifi-rotate.sh`, `/root/kidswifi-pin`, `/root/kidswifi-meta`, `/root/kidswifi-current.txt`
+- `network.kids`, `dhcp.kids`, kids firewall rules, and all `wifi-iface` sections attached to network `kids`
+
+Notes:
+- The script does **not** revert `uhttpd` listen/CGI settings; review `/etc/config/uhttpd` if you changed them.
+- WAN allow rules not named `Allow-Admin-From-My-PC` or `Allow-SSH-From-My-PC` are left untouched.
 
 ---
 

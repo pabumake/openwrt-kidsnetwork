@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shellcheck
+        uses: ludeeus/action-shellcheck@v2
+        with:
+          scandir: .
+
+      - name: shfmt (optional)
+        continue-on-error: true
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shfmt
+          shfmt -d install.sh scripts/*.sh root/*.sh www/cgi-bin/*.sh
+
+      - name: Markdown lint
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: |
+            **/*.md
