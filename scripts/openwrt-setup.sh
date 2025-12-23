@@ -574,9 +574,12 @@ case "$ACTION" in
     ;;
   reveal)
     require_pin "$PIN"
-    PASS="$( [ -f "$META" ] && sed -n 's/^PASS=//p' "$META" | head -n1 || true )"
-    SSID="$( [ -f "$META" ] && sed -n 's/^SSID=//p' "$META" | head -n1 || true )"
-    TS="$(   [ -f "$META" ] && sed -n 's/^TS=//p' "$META"   | head -n1 || true )"
+    PASS=""; SSID=""; TS=""
+    if [ -f "$META" ]; then
+      PASS="$(sed -n 's/^PASS=//p' "$META" | head -n1 || true)"
+      SSID="$(sed -n 's/^SSID=//p' "$META" | head -n1 || true)"
+      TS="$(sed -n 's/^TS=//p' "$META" | head -n1 || true)"
+    fi
     send_json "{\"ok\":true,\"ssid\":\"$(json_escape "$SSID")\",\"last_rotated\":\"$(json_escape "$TS")\",\"password\":\"$(json_escape "$PASS")\"}"
     ;;
   *)
