@@ -102,7 +102,7 @@ Safer install options:
 Pinned release (won't change underneath you):
 
 ```sh
-wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.1/install.sh | sh
+wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.2/install.sh | sh
 ```
 
 Download, inspect, then run:
@@ -767,7 +767,7 @@ sh scripts/openwrt-uninstall.sh
 Or one-liner (pinned release):
 
 ```sh
-wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.1/scripts/openwrt-uninstall.sh | sh
+wget -O- https://raw.githubusercontent.com/pabumake/openwrt-kidsnetwork/0.1.2/scripts/openwrt-uninstall.sh | sh
 ```
 
 Removes:
